@@ -136,12 +136,6 @@
   .modal-close { background: none; border: none; font-size: 1.3rem; color: var(--muted); cursor: pointer; padding: 2px 6px; border-radius: 4px; line-height: 1; }
   .modal-close:hover { color: var(--ink); }
 
-  /* CONFIG BANNER */
-  .config-banner { background: #FFF3CD; border: 1.5px solid #FBBF24; border-radius: 8px; padding: 14px 18px; margin-bottom: 16px; font-size: 0.85rem; color: #7c5c00; }
-  .config-banner strong { display: block; margin-bottom: 6px; font-size: 0.9rem; }
-  .config-banner input { width: 100%; margin-top: 8px; padding: 8px 10px; border: 1.5px solid #FBBF24; border-radius: 6px; font-size: 0.85rem; font-family: 'Inter', sans-serif; background: #fff; color: var(--ink); }
-  .config-banner input:focus { outline: none; border-color: var(--grass); }
-
   /* LOADING */
   .loading { display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,0.7); font-size: 0.85rem; padding: 20px 0; }
   .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: var(--gold); border-radius: 50%; animation: spin .7s linear infinite; }
@@ -164,82 +158,6 @@
 </header>
 
 <div class="main">
-
-  <!-- CONFIG BANNER -->
-  <div class="config-banner" id="config-banner">
-    <strong>⚙️ Falta configurar la URL de tu Apps Script</strong>
-    Pegá acá la URL que te dio Google al publicar el script:
-    <input type="text" id="script-url-input" placeholder="https://script.google.com/macros/s/..." oninput="saveScriptUrl(this.value)">
-  </div>
-
-  <div class="tabs">
-    <button class="tab active" onclick="showTab('ranking')">🏆 Ranking</button>
-    <button class="tab" onclick="showTab('partidos')">📋 Partidos</button>
-    <button class="tab" onclick="showTab('nuevo')">➕ Nuevo partido</button>
-  </div>
-
-  <div id="tab-ranking"></div>
-  <div id="tab-partidos" style="display:none"></div>
-
-  <div id="tab-nuevo" style="display:none">
-    <div class="card">
-      <div class="card-title">Cargar Partido</div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Fecha</label>
-          <input type="date" id="f-fecha">
-        </div>
-        <div class="form-group">
-          <label>Equipo A</label>
-          <input type="text" id="f-equipoA" placeholder="Ej: Argentina">
-        </div>
-        <div class="form-group">
-          <label>Equipo B</label>
-          <input type="text" id="f-equipoB" placeholder="Ej: Brasil">
-        </div>
-      </div>
-      <div class="form-row" style="margin-bottom:20px">
-        <div class="form-group" style="max-width:200px">
-          <label>Resultado final <span style="font-weight:400;color:var(--muted)">(opcional)</span></label>
-          <div class="pred-score">
-            <input type="number" id="f-resA" min="0" placeholder="—">
-            <span>-</span>
-            <input type="number" id="f-resB" min="0" placeholder="—">
-          </div>
-        </div>
-      </div>
-      <div class="card-title" style="margin-bottom:12px">Predicciones</div>
-      <div class="prediction-grid">
-        <div class="pred-block">
-          <div class="pred-name">Kiki</div>
-          <div class="pred-score">
-            <input type="number" id="p-kiki-a" min="0" placeholder="0">
-            <span>-</span>
-            <input type="number" id="p-kiki-b" min="0" placeholder="0">
-          </div>
-        </div>
-        <div class="pred-block">
-          <div class="pred-name">Lari</div>
-          <div class="pred-score">
-            <input type="number" id="p-lari-a" min="0" placeholder="0">
-            <span>-</span>
-            <input type="number" id="p-lari-b" min="0" placeholder="0">
-          </div>
-        </div>
-        <div class="pred-block">
-          <div class="pred-name">Ingrid</div>
-          <div class="pred-score">
-            <input type="number" id="p-ingrid-a" min="0" placeholder="0">
-            <span>-</span>
-            <input type="number" id="p-ingrid-b" min="0" placeholder="0">
-          </div>
-        </div>
-      </div>
-      <button class="btn btn-primary" onclick="guardarPartido()">Guardar partido</button>
-      <span id="form-msg" style="font-size:0.82rem;margin-left:12px"></span>
-    </div>
-  </div>
-</div>
 
 <!-- MODAL EDITAR -->
 <div class="modal-overlay" id="modal-overlay" onclick="closeModalOverlay(event)">
@@ -314,21 +232,6 @@ const URL_KEY = 'prode_script_url';
 
 let SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzVGmms6RLDcUU7M6H-bDO-tvlSDfe2Ne_eMniPhkA4CxyfzPk06IWM8Rt0zfAcssMAjg/exec';
 let cache = [];
-
-// ── URL CONFIG ──────────────────────────────────────────────
-function saveScriptUrl(val) {
-  SCRIPT_URL = val.trim();
-  localStorage.setItem(URL_KEY, SCRIPT_URL);
-  if (SCRIPT_URL.startsWith('https://script.google.com/macros')) {
-    document.getElementById('config-banner').style.display = 'none';
-    loadData();
-  }
-}
-
-function initBanner() {
-  document.getElementById('config-banner').style.display = 'none';
-}
-}
 
 // ── API ──────────────────────────────────────────────────────
 async function api(params, body) {
@@ -577,10 +480,6 @@ function showTab(name) {
   });
 }
 
-// ── INIT ─────────────────────────────────────────────────────
-initBanner();
-if (SCRIPT_URL) loadData();
-else { renderRanking(); renderPartidos(); }
 </script>
 </body>
 </html>
