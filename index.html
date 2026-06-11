@@ -319,7 +319,7 @@ let cache = [];
 function saveScriptUrl(val) {
   SCRIPT_URL = val.trim();
   localStorage.setItem(URL_KEY, SCRIPT_URL);
-  if (SCRIPT_URL.startsWith('https://script.google.com/macros/s/AKfycbxoahVzv6KU1sJEQwIRBDJd7sXiVQPd1Kf7w1HLyFuRVkiI87IjcKjPJatNxHb6CrB2Cg/exec')) {
+  if (SCRIPT_URL.startsWith('https://script.google.com/macros')) {
     document.getElementById('config-banner').style.display = 'none';
     loadData();
   }
