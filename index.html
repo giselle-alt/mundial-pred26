@@ -232,7 +232,24 @@ const URL_KEY = 'prode_script_url';
 
 let SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzVGmms6RLDcUU7M6H-bDO-tvlSDfe2Ne_eMniPhkA4CxyfzPk06IWM8Rt0zfAcssMAjg/exec';
 let cache = [];
+  
+// ── URL CONFIG ──────────────────────────────────────────────
+function saveScriptUrl(val) {
+  SCRIPT_URL = val.trim();
+  localStorage.setItem(URL_KEY, SCRIPT_URL);
+  if (SCRIPT_URL.startsWith('https://script.google.com')) {
+    document.getElementById('config-banner').style.display = 'none';
+    loadData();
+  }
+}
 
+function initBanner() {
+  const input = document.getElementById('script-url-input');
+  if (SCRIPT_URL) {
+    input.value = SCRIPT_URL;
+    document.getElementById('config-banner').style.display = 'none';
+  }
+}
 // ── API ──────────────────────────────────────────────────────
 async function api(params, body) {
   if (!SCRIPT_URL) { alert('Primero configurá la URL del script.'); return null; }
@@ -556,7 +573,9 @@ function showTab(name) {
   });
 }
 // ── INIT ─────────────────────────────────────────────────────
-loadData();
+initBanner();
+if (SCRIPT_URL) loadData();
+else { renderRanking(); renderPartidos(); }
 </script>
 </body>
 </html>
