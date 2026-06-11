@@ -264,9 +264,15 @@ async function loadData() {
 function showLoading(on) {
   ['tab-ranking','tab-partidos'].forEach(id => {
     const el = document.getElementById(id);
-    if (on && el.style.display !== 'none') {
-      el.innerHTML = '<div class="loading"><div class="spinner"></div> Cargando datos...</div>';
+
+    if (!el) {
+      console.error('No existe el elemento:', id);
+      return;
     }
+
+    if (on && el.style.display !== 'none') {
+      el.innerHTML =
+        '<div class="loading"><div class="spinner"></div> Cargando datos...</div>';
   });
 }
 
@@ -412,7 +418,77 @@ async function eliminarPartido(id) {
     renderRanking(); renderPartidos();
   }
 }
+  <!-- CONFIG BANNER -->
 
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('ranking')">🏆 Ranking</button>
+    <button class="tab" onclick="showTab('partidos')">📋 Partidos</button>
+    <button class="tab" onclick="showTab('nuevo')">➕ Nuevo partido</button>
+  </div>
+
+  <div id="tab-ranking"></div>
+  <div id="tab-partidos" style="display:none"></div>
+
+  <div id="tab-nuevo" style="display:none">
+    <div class="card">
+      <div class="card-title">Cargar Partido</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Fecha</label>
+          <input type="date" id="f-fecha">
+        </div>
+        <div class="form-group">
+          <label>Equipo A</label>
+          <input type="text" id="f-equipoA" placeholder="Ej: Argentina">
+        </div>
+        <div class="form-group">
+          <label>Equipo B</label>
+          <input type="text" id="f-equipoB" placeholder="Ej: Brasil">
+        </div>
+      </div>
+      <div class="form-row" style="margin-bottom:20px">
+        <div class="form-group" style="max-width:200px">
+          <label>Resultado final <span style="font-weight:400;color:var(--muted)">(opcional)</span></label>
+          <div class="pred-score">
+            <input type="number" id="f-resA" min="0" placeholder="—">
+            <span>-</span>
+            <input type="number" id="f-resB" min="0" placeholder="—">
+          </div>
+        </div>
+      </div>
+      <div class="card-title" style="margin-bottom:12px">Predicciones</div>
+      <div class="prediction-grid">
+        <div class="pred-block">
+          <div class="pred-name">Kiki</div>
+          <div class="pred-score">
+            <input type="number" id="p-kiki-a" min="0" placeholder="0">
+            <span>-</span>
+            <input type="number" id="p-kiki-b" min="0" placeholder="0">
+          </div>
+        </div>
+        <div class="pred-block">
+          <div class="pred-name">Lari</div>
+          <div class="pred-score">
+            <input type="number" id="p-lari-a" min="0" placeholder="0">
+            <span>-</span>
+            <input type="number" id="p-lari-b" min="0" placeholder="0">
+          </div>
+        </div>
+        <div class="pred-block">
+          <div class="pred-name">Ingrid</div>
+          <div class="pred-score">
+            <input type="number" id="p-ingrid-a" min="0" placeholder="0">
+            <span>-</span>
+            <input type="number" id="p-ingrid-b" min="0" placeholder="0">
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="guardarPartido()">Guardar partido</button>
+      <span id="form-msg" style="font-size:0.82rem;margin-left:12px"></span>
+    </div>
+  </div>
+</div>
+  
 // ── MODAL EDITAR ─────────────────────────────────────────────
 function abrirModal(id) {
   const m = cache.find(x => x.id === id);
