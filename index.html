@@ -328,10 +328,12 @@ function saveScriptUrl(val) {
 
 function initBanner() {
   const input = document.getElementById('script-url-input');
-  if (SCRIPT_URL) {
-    input.value = SCRIPT_URL;
-    document.getElementById('config-banner').style.display = 'none';
-  }
+  if (SCRIPT_URL && SCRIPT_URL.startsWith('https://script.google.com')) {
+  input.value = SCRIPT_URL;
+  document.getElementById('config-banner').style.display = 'none';
+} else {
+  document.getElementById('config-banner').style.display = 'block';
+}
 }
 
 // ── API ──────────────────────────────────────────────────────
