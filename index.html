@@ -88,16 +88,81 @@
   .pred-score input:focus { outline: none; border-color: var(--grass); }
   .pred-score span { color: var(--muted); font-weight: 600; }
  
-  .ranking { width: 100%; border-collapse: collapse; }
-  .ranking th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); padding: 8px 12px; text-align: left; border-bottom: 2px solid var(--border); }
-  .ranking td { padding: 12px; border-bottom: 1px solid var(--chalk); font-size: 0.9rem; }
-  .ranking tr:last-child td { border-bottom: none; }
-  .rank-pos { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; color: var(--muted); width: 40px; }
-  .rank-pos.gold   { color: #C9A800; }
-  .rank-pos.silver { color: #888; }
-  .rank-pos.bronze { color: #a0522d; }
-  .rank-name { font-weight: 600; font-size: 1rem; }
-  .pts { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; color: var(--grass); }
+  .ranking {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.ranking th {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  color: var(--muted);
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 2px solid var(--border);
+}
+
+.ranking td {
+  padding: 12px;
+  border-bottom: 1px solid var(--chalk);
+  font-size: 0.9rem;
+}
+
+.ranking tr:last-child td {
+  border-bottom: none;
+}
+
+/* Anchos de columnas */
+.ranking th:nth-child(1),
+.ranking td:nth-child(1) {
+  width: 40px;
+}
+
+.ranking th:nth-child(2),
+.ranking td:nth-child(2) {
+  text-align: left;
+}
+
+.ranking th:nth-child(3),
+.ranking th:nth-child(4),
+.ranking th:nth-child(5),
+.ranking td:nth-child(3),
+.ranking td:nth-child(4),
+.ranking td:nth-child(5) {
+  width: 70px;
+  text-align: center;
+}
+
+.rank-pos {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.4rem;
+  color: var(--muted);
+}
+
+.rank-pos.gold {
+  color: #C9A800;
+}
+
+.rank-pos.silver {
+  color: #888;
+}
+
+.rank-pos.bronze {
+  color: #a0522d;
+}
+
+.rank-name {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.pts {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.5rem;
+  color: var(--grass);
+}
  
   .match-item { background: var(--card); border-radius: 8px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 6px rgba(0,0,0,0.1); }
   .match-item.is-today { border: 2px solid var(--gold); }
