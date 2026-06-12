@@ -433,87 +433,169 @@ function renderRanking() {
     </div>`;
 }
 
-// ── RENDER PARTIDOS ──────────────────────────────────────────
-function renderPartidos() {
-  const el = document.getElementById('tab-partidos');
-  if (cache.length === 0) {
-    el.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>No hay partidos cargados todavía.</p></div>`;
-    return;
-  }
-  const todayStr = new Date().toDateString();
+// ── DATE PARSER ROBUSTO ─────────────────────────────────────
+function parseFecha(fecha) {
+  if (!fecha) return null;
 
-const getGroup = (fecha) => {
-  const d = new Date(fecha + 'T12:00:00');
-  d.setHours(0,0,0,0);
+  // Si ya es Date
+  if (fecha instanceof Date) {
+    const d = new Date(fecha);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+
+  // String MM/DD/YYYY (Google Sheets)
+  if (typeof fecha === "string" && fecha.includes("/")) {
+    const parts = fecha.split("/").map(Number);
+
+    // Validación básica
+    if (parts.length !== 3) return null;
+
+    const [month, day, year] = parts;
+
+    const d = new Date(year, month - 1, day);
+    if (isNaN(d.getTime())) return null;
+
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+
+  // Fallback ISO u otros formatos
+  const d = new Date(fecha);
+  if (isNaN(d.getTime())) return null;
+
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+// ── HELPERS ─────────────────────────────────────────────────
+function isTodayDate(fecha) {
+  const d = parseFecha(fecha);
+  if (!d) return false;
 
   const today = new Date();
-  today.setHours(0,0,0,0);
+  today.setHours(0, 0, 0, 0);
 
-  if (d.getTime() === today.getTime()) return 0; // hoy
-  if (d > today) return 1; // futuro
-  return 2; // pasado
-};
+  return d.getTime() === today.getTime();
+}
 
-const sorted = [...cache].sort((a, b) => {
-  const ga = getGroup(a.fecha);
-  const gb = getGroup(b.fecha);
+// ── RENDER PARTIDOS ─────────────────────────────────────────
+function renderPartidos() {
+  const el = document.getElementById('tab-partidos');
 
-  if (ga !== gb) return ga - gb;
+  if (!cache || cache.length === 0) {
+    el.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <p>No hay partidos cargados todavía.</p>
+      </div>
+    `;
+    return;
+  }
 
-  const da = new Date(a.fecha + 'T12:00:00');
-  const db = new Date(b.fecha + 'T12:00:00');
+  const todayStr = new Date().toDateString();
 
-  if (ga === 1) return da - db; // futuros: cercano → lejano
-  if (ga === 2) return da - db; // pasados: viejo → reciente
-  return 0; // hoy
-});
+  // Orden global ascendente por fecha real
+  const sorted = [...cache].sort((a, b) => {
+    const da = parseFecha(a.fecha);
+    const db = parseFecha(b.fecha);
+
+    if (!da && !db) return 0;
+    if (!da) return 1;
+    if (!db) return -1;
+
+    return da - db;
+  });
+
   el.innerHTML = sorted.map(m => {
-    const isToday =
-  new Date(m.fecha + 'T12:00:00').toDateString() === todayStr;
+    const isToday = isTodayDate(m.fecha);
+
     const result = { a: m.resA, b: m.resB };
-    const fechaStr = m.fecha ? new Date(m.fecha + 'T12:00:00').toLocaleDateString('es-AR', {weekday:'short',day:'numeric',month:'short'}) : '';
+
+    const fechaObj = parseFecha(m.fecha);
+
+    const fechaStr = fechaObj
+      ? fechaObj.toLocaleDateString('es-AR', {
+          weekday: 'short',
+          day: 'numeric',
+          month: 'short'
+        })
+      : '';
+
     const pending = m.resA === null || m.resB === null;
     const scoreDisplay = !pending ? `${m.resA} - ${m.resB}` : '? - ?';
+
     const chips = PLAYERS.map(p => {
       const pred = m.preds[p.toLowerCase()];
       const pts = calcPoints(result, pred);
-      let cls = 'pts-none', label = '—', badge = '';
-      if (pts === 3) { cls = 'pts-exact'; label = '+3 pts'; badge = '<span class="badge-exact">exacto</span>'; }
-      else if (pts === 1) { cls = 'pts-outcome'; label = '+1 pt'; }
-      else if (pts === 0) { cls = 'pts-none'; label = '0 pts'; }
-      const sc = (pred.a !== null && pred.b !== null) ? `${pred.a} - ${pred.b}` : '? - ?';
-      return `<div class="pred-chip">
-        <div class="chip-name">${p}</div>
-        <div class="chip-score ${cls}">${sc}${badge}</div>
-        <div class="chip-pts ${cls}">${label}</div>
-      </div>`;
-    }).join('');
-    return `<div class="match-item ${isToday ? 'is-today' : ''}">
-      <div class="match-header">
-        <span class="match-date">📅 ${fechaStr}${pending ? '<span class="pending-badge">Pendiente</span>' : ''}</span>
-        <div style="display:flex;gap:6px;align-items:center">
-          <button class="btn btn-ghost" style="padding:4px 10px;font-size:0.75rem" onclick="abrirModal('${m.id}')">✏️ Editar</button>
-          <button class="delete-btn" onclick="eliminarPartido('${m.id}')">✕</button>
+
+      let cls = 'pts-none';
+      let label = '0 pts';
+      let badge = '';
+
+      if (pts === 3) {
+        cls = 'pts-exact';
+        label = '+3 pts';
+        badge = '<span class="badge-exact">exacto</span>';
+      } else if (pts === 1) {
+        cls = 'pts-outcome';
+        label = '+1 pt';
+      }
+
+      const sc =
+        (pred.a !== null && pred.b !== null)
+          ? `${pred.a} - ${pred.b}`
+          : '? - ?';
+
+      return `
+        <div class="pred-chip">
+          <div class="chip-name">${p}</div>
+          <div class="chip-score ${cls}">${sc}${badge}</div>
+          <div class="chip-pts ${cls}">${label}</div>
         </div>
+      `;
+    }).join('');
+
+    return `
+      <div class="match-item ${isToday ? 'is-today' : ''}">
+        <div class="match-header">
+          <span class="match-date">
+            📅 ${fechaStr}
+            ${pending ? '<span class="pending-badge">Pendiente</span>' : ''}
+          </span>
+
+          <div style="display:flex;gap:6px;align-items:center">
+            <button class="btn btn-ghost"
+              style="padding:4px 10px;font-size:0.75rem"
+              onclick="abrirModal('${m.id}')">
+              ✏️ Editar
+            </button>
+            <button class="delete-btn" onclick="eliminarPartido('${m.id}')">✕</button>
+          </div>
+        </div>
+
+        <div class="match-score-line">
+          <span class="team-name right">${m.equipoA}</span>
+          <span class="final-score">${scoreDisplay}</span>
+          <span class="team-name">${m.equipoB}</span>
+        </div>
+
+        <div class="preds-row">${chips}</div>
       </div>
-      <div class="match-score-line">
-        <span class="team-name right">${m.equipoA}</span>
-        <span class="final-score">${scoreDisplay}</span>
-        <span class="team-name">${m.equipoB}</span>
-      </div>
-      <div class="preds-row">${chips}</div>
-    </div>`;
+    `;
   }).join('');
-  console.log("TODAY ELEMENT:", document.querySelector('.match-item.is-today'));
-  requestAnimationFrame(() => {
-  const todayEl = document.querySelector('.match-item.is-today');
-  if (todayEl) {
-    todayEl.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start'
-    });
-  }
-});
+
+  // ── SCROLL A HOY (ROBUSTO) ────────────────────────────────
+  setTimeout(() => {
+    const todayEl = document.querySelector('.match-item.is-today');
+
+    if (todayEl) {
+      todayEl.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      });
+    }
+  }, 0);
 }
 
 // ── GUARDAR ──────────────────────────────────────────────────
