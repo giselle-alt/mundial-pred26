@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mundial 2026</title>
+<title>Prode Mundial 2026</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap');
 
@@ -166,6 +166,11 @@
 <div class="main">
 
   <!-- CONFIG BANNER -->
+  <div class="config-banner" id="config-banner">
+    <strong>⚙️ Falta configurar la URL de tu Apps Script</strong>
+    Pegá acá la URL que te dio Google al publicar el script:
+    <input type="text" id="script-url-input" placeholder="https://script.google.com/macros/s/..." oninput="saveScriptUrl(this.value)">
+  </div>
 
   <div class="tabs">
     <button class="tab active" onclick="showTab('ranking')">🏆 Ranking</button>
@@ -323,16 +328,11 @@ function saveScriptUrl(val) {
 
 function initBanner() {
   const input = document.getElementById('script-url-input');
-  const banner = document.getElementById('config-banner');
-
-  if (!banner) return;
-
-  if (input && SCRIPT_URL && SCRIPT_URL.startsWith('https://script.google.com')) {
-    input.value = SCRIPT_URL;
-    banner.style.display = 'none';
-  } else {
-    banner.style.display = 'block';
-  }
+  if (SCRIPT_URL && SCRIPT_URL.startsWith('https://script.google.com')) {
+  input.value = SCRIPT_URL;
+  document.getElementById('config-banner').style.display = 'none';
+} else {
+  document.getElementById('config-banner').style.display = 'block';
 }
 }
 
@@ -440,36 +440,8 @@ function renderPartidos() {
     el.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>No hay partidos cargados todavía.</p></div>`;
     return;
   }
-  const todayStr = new Date().toDateString();
-
-const getGroup = (fecha) => {
-  const d = new Date(fecha + 'T12:00:00');
-  d.setHours(0,0,0,0);
-
-  const today = new Date();
-  today.setHours(0,0,0,0);
-
-  if (d.getTime() === today.getTime()) return 0; // hoy
-  if (d > today) return 1; // futuro
-  return 2; // pasado
-};
-
-const sorted = [...cache].sort((a, b) => {
-  const ga = getGroup(a.fecha);
-  const gb = getGroup(b.fecha);
-
-  if (ga !== gb) return ga - gb;
-
-  const da = new Date(a.fecha + 'T12:00:00');
-  const db = new Date(b.fecha + 'T12:00:00');
-
-  if (ga === 1) return da - db; // futuros: cercano → lejano
-  if (ga === 2) return da - db; // pasados: viejo → reciente
-  return 0; // hoy
-});
+  const sorted = [...cache].sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
   el.innerHTML = sorted.map(m => {
-    const isToday =
-  new Date(m.fecha + 'T12:00:00').toDateString() === todayStr;
     const result = { a: m.resA, b: m.resB };
     const fechaStr = m.fecha ? new Date(m.fecha + 'T12:00:00').toLocaleDateString('es-AR', {weekday:'short',day:'numeric',month:'short'}) : '';
     const pending = m.resA === null || m.resB === null;
@@ -488,7 +460,7 @@ const sorted = [...cache].sort((a, b) => {
         <div class="chip-pts ${cls}">${label}</div>
       </div>`;
     }).join('');
-    return `<div class="match-item ${isToday ? 'is-today' : ''}">
+    return `<div class="match-item">
       <div class="match-header">
         <span class="match-date">📅 ${fechaStr}${pending ? '<span class="pending-badge">Pendiente</span>' : ''}</span>
         <div style="display:flex;gap:6px;align-items:center">
@@ -504,15 +476,6 @@ const sorted = [...cache].sort((a, b) => {
       <div class="preds-row">${chips}</div>
     </div>`;
   }).join('');
-  requestAnimationFrame(() => {
-  const todayEl = document.querySelector('.match-item.is-today');
-  if (todayEl) {
-    todayEl.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start'
-    });
-  }
-});
 }
 
 // ── GUARDAR ──────────────────────────────────────────────────
