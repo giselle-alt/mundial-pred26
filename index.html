@@ -504,6 +504,7 @@ const sorted = [...cache].sort((a, b) => {
       <div class="preds-row">${chips}</div>
     </div>`;
   }).join('');
+  console.log("TODAY ELEMENTS:", document.querySelectorAll('.is-today').length);
   requestAnimationFrame(() => {
   const todayEl = document.querySelector('.match-item.is-today');
   if (todayEl) {
