@@ -586,17 +586,23 @@ function renderPartidos() {
   }).join('');
 
   // ── SCROLL A HOY (ROBUSTO) ────────────────────────────────
-  setTimeout(() => {
+  requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
     const todayEl = document.querySelector('.match-item.is-today');
 
-    if (todayEl) {
-      todayEl.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center'
-      });
+    console.log("TODAY ELEMENT:", todayEl);
+
+    if (!todayEl) {
+      console.warn("No se encontró .is-today (revisar isTodayDate)");
+      return;
     }
-  }, 0);
-}
+
+    todayEl.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center'
+    });
+  });
+});
 
 // ── GUARDAR ──────────────────────────────────────────────────
 async function guardarPartido() {
