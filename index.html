@@ -363,7 +363,8 @@
 
 <script>
 const PLAYERS = ['Kiki', 'Lari', 'Ingrid'];
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxgxqBPmXTbrlCmYdUOEhcdyaaXK7OC1XsR9XXEu1f7pvUeqBFL9mtY-oyAx7VzafJA1w/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyLbo4SdJCznQndqV63Xby0PoSFa2anHSG4oLjZQGeyu0Ekk-GVw2p28D4EUAh1pc9eXQ/exec';
+const ES_ADMIN = new URLSearchParams(window.location.search).get('admin') === 'true';
 const FASES = ['Fecha 1','Fecha 2','Fecha 3','Dieciseisavos','Octavos','Cuartos','Semifinal','Tercer puesto','Final'];
 
 let cache = [];
@@ -556,10 +557,10 @@ function renderPartidos() {
     return `<div class="match-item${isToday(m.fecha) ? ' is-today' : ''}">
       <div class="match-header">
         <span class="match-date">📅 ${fechaStr}${pending ? '<span class="pending-badge">Pendiente</span>' : ''}</span>
-        <div style="display:flex;gap:6px;align-items:center">
+        ${ES_ADMIN ? `<div style="display:flex;gap:6px;align-items:center">
           <button class="btn btn-ghost" style="padding:4px 10px;font-size:0.75rem" onclick="abrirModal('${m.id}')">✏️ Editar</button>
           <button class="delete-btn" onclick="eliminarPartido('${m.id}')">✕</button>
-        </div>
+        </div>` : ''}
       </div>
       <div class="match-score-line">
         <span class="team-name right">${m.equipoA}</span>
